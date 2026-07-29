@@ -1,9 +1,16 @@
 services:
   crossposter:
     build: .
-    image: ghcr.io/linus2punkt0/bluesky-crossposter:latest
+#    image: ghcr.io/linus2punkt0/bluesky-crossposter:latest
     restart: always
+    container_name: bluesky-crossposter
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "2"
     environment:
+      TZ: America/Toronto
       BSKY_HANDLE:
       BSKY_PASSWORD:
       MASTODON_HANDLE:
@@ -22,6 +29,7 @@ services:
       MENTIONS:
       POST_DEFAULT:
       LANG_TOGGLE:
+      SKIP_TAGS:
       QUOTE_POSTS:
       RETWEETS:
       MAX_RETRIES:
