@@ -1,3 +1,15 @@
+# About this fork
+
+This is a personal fork of [Linus2punkt0/bluesky-crossposter](https://github.com/Linus2punkt0/bluesky-crossposter), kept close to upstream (so it retains video support, posts with more than 4 images, cross-deletion and the current Bluesky API) with a few additions on top:
+
+- **Stop-hashtag filtering (`skip_tags`)** — posts containing a configured hashtag (default: `#nocrosspost`) are not crossposted anywhere. The tag is matched case-insensitively, both as a clickable tag (facet) and as plain text, and can be set via the `SKIP_TAGS` environment variable. Skipped posts are marked as skipped in the database, so they are not picked up again on later runs, and reposts of them are skipped too. This is the main reason the fork exists: the only other crossposter with tag filtering is a long-abandoned fork that lags ~2 years behind upstream.
+- **Hardened Twitter rate-limit handling** — the poster no longer crashes when Twitter omits rate-limit headers, and the database is updated only after all parts of a thread have been posted.
+- **Deployment-ready `docker-compose.yml`** — tuned for running on a Raspberry Pi (local ARM build, log rotation, host-mounted database/backup volumes).
+
+Everything below is the original upstream documentation.
+
+---
+
 The Bluesky Crossposter is a python application that automatically takes post from one service (Bluesky or Mastodon) and posts them to one or more other services (Bluesky, Mastodon and/or Twitter). The application can handle posts, threads, quote posts*, reposts**, deletes, media (including alt text) and privacy settings***
 
 **Quote posts only work fully on your own posts, as other's posts don't necessarily exist on the target service. Otherwise posts will be sent as a post with an included link (if enabled in settings). They also don't work on Mastoon, since Mastodon doesn't have a quote post function, so there they will be converted to replies (if qoute of yourself) or a post with a url (if quote of someone else).*
