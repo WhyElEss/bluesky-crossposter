@@ -12,6 +12,8 @@ To get started, make copies of the txt-files in the settings folder with .py fil
 
 In settings.py you can configure the poster to work the way you want it, setting what inputs and outputs to use, how mentions and quote posts are handled etc. Finally set up a way for the code to be run periodically, for example a cronjob running every five or ten minutes.
 
+Posts containing a hashtag listed in the skip_tags setting (default: #nocrosspost) are not crossposted at all. The tag is matched case-insensitively, whether it was added as a clickable tag or written as plain text, and can also be set via the SKIP_TAGS environment variable as a comma separated list.
+
 When first run, or run without a database file, all posts within the timelimit set by postTimeLimit in settings/settings.py will be posted. If you have used a previous version of the crossposter, place database.json-file in the db folder, and it will be converted to the new format upon first run.
 
 ## Running with Docker

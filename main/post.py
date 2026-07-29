@@ -2,7 +2,7 @@ from copy import deepcopy
 from main.functions import logger, split_text
 from settings.paths import image_path
 from PIL import Image
-import random, string, urllib, requests
+import random, re, string, urllib, requests
 import settings.settings as settings
 from main.service_parameters import service_parameters
 
@@ -117,8 +117,27 @@ class Post():
     
     # Checking if a post is supposed to post to a specific service
     def post_toggle(self, service):
+        if self.skip_tag_found():
+            return False
         if self.lang_toggle(service) and settings.privacy[self.info["privacy"]][service]:
             return True
+
+    # Checking if the post contains one of the tags set in skip_tags, in which case it is not crossposted.
+    # Tags added via the tag function are found in the tag facets, but tags written as plain text
+    # are only found in the text itself, so both are checked. Comparisons are case insensitive.
+    def skip_tag_found(self):
+        for tag in settings.skip_tags:
+            tag = tag.strip().lstrip("#").lower()
+            if not tag:
+                continue
+            for facet_tag in self.info["tags"]:
+                if facet_tag.lower() == tag:
+                    logger.info(f"Post contains skip tag #{tag}, skipping crossposting.")
+                    return True
+            if self.info["text"] and re.search(r"#" + re.escape(tag) + r"\b", self.info["text"], re.IGNORECASE):
+                logger.info(f"Post contains skip tag #{tag}, skipping crossposting.")
+                return True
+        return False
 
     # This function uses the language selection as a way to select which posts should be crossposted.
     def lang_toggle(self, service):

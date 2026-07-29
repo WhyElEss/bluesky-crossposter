@@ -40,6 +40,12 @@ lang_toggle = {
     "bluesky": None
 }
 
+# Posts containing any of the hashtags listed in skip_tags will not be crossposted to any service.
+# Tags are matched case-insensitively, both against clickable tags (facets) and tags written as
+# plain text, and can be entered with or without the leading #.
+# Accepted values: A list of strings, e.g. ["nocrosspost", "local"]
+skip_tags = ["nocrosspost"]
+
 # quote_posts determines if quote reposts of other users' posts should be crossposted with the quoted post included as a link. If False these posts will be ignored.
 quote_posts = True
 # The reposting on twitter is locked behind a paywall, so the function is disabled by default. If you want to give Elon a bunch of money, I guess go ahead and enable it.
@@ -121,6 +127,8 @@ mastodon_mentions = os.environ.get('MASTODON_MENTIONS') if os.environ.get('MASTO
 mentions = os.environ.get('MENTIONS') if os.environ.get('MENTIONS') else mentions
 post_default = os.environ.get('POST_DEFAULT').lower() == 'true' if os.environ.get('POST_DEFAULT') else post_default
 lang_toggle = ast.literal_eval(os.environ.get('LANG_TOGGLE')) if os.environ.get('LANG_TOGGLE') else lang_toggle
+# SKIP_TAGS is a comma separated list, e.g. "nocrosspost, local"
+skip_tags = [tag.strip().lstrip("#").lower() for tag in os.environ.get('SKIP_TAGS').split(",")] if os.environ.get('SKIP_TAGS') else skip_tags
 quote_posts = os.environ.get('QUOTE_POSTS').lower() == 'true' if os.environ.get('QUOTE_POSTS') else quote_posts
 retweets = os.environ.get('RETWEETS').lower() == 'true' if os.environ.get('RETWEETS') else retweets
 max_retries = int(os.environ.get('MAX_RETRIES')) if os.environ.get('MAX_RETRIES') else max_retries
