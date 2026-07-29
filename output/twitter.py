@@ -46,6 +46,7 @@ def post(item):
         reply_settings = None
     # putting media in a new variable so that I can remove it after posting it
     media = item["post"].media
+    posted_tweet_id = None
     for text_post in text_content:
         logger.info(f"Posting \"{text_post}\" to Twitter.")
         # If post includes images, images are uploaded so that they can be included in the tweet
@@ -86,14 +87,22 @@ def post(item):
         # If a quote post gets split, only the first post quotes, and the second becomes just a reply to that post
         quote_id = None
         reply_id = content["data"]["id"]
+        posted_tweet_id = reply_id
         # Checking remaining ratelimit and ratelimit reset time
-        remaining_ratelimit = int(a.headers["x-rate-limit-remaining"])
-        logger.info(f"{remaining_ratelimit} posts remaining until twitter ratelimit is reached")
-        reset_time = int(a.headers["x-rate-limit-reset"])
-        if remaining_ratelimit < 1:
-            logger.info("Twitter ratelimit has been reached.")
-            set_ratelimit_reset(reset_time)
-    database.update(item["id"], "twitter", reply_id)
+        # Using .get() with default values to avoid KeyError if headers are missing
+        remaining_ratelimit = int(a.headers.get("x-rate-limit-remaining", 0))
+        if remaining_ratelimit > 0:
+            logger.info(f"{remaining_ratelimit} posts remaining until twitter ratelimit is reached")
+        reset_time_header = a.headers.get("x-rate-limit-reset")
+        if reset_time_header:
+            reset_time = int(reset_time_header)
+            if remaining_ratelimit < 1:
+                logger.info("Twitter ratelimit has been reached.")
+                set_ratelimit_reset(reset_time)
+        else:
+            logger.warning("Rate limit headers not found in Twitter API response")
+    # Update database only after successful posting of all tweet parts
+    database.update(item["id"], "twitter", posted_tweet_id)
 
 # Function for reposting tweet. Must be enabled in settings
 # as it required the paid version of the Twitter API.
