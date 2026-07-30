@@ -3,6 +3,8 @@
 This is a personal fork of [Linus2punkt0/bluesky-crossposter](https://github.com/Linus2punkt0/bluesky-crossposter), kept close to upstream (so it retains video support, posts with more than 4 images, cross-deletion and the current Bluesky API) with a few additions on top:
 
 - **Stop-hashtag filtering (`skip_tags`)** — posts containing a configured hashtag (default: `#nocrosspost`) are not crossposted anywhere. The tag is matched case-insensitively, both as a clickable tag (facet) and as plain text, and can be set via the `SKIP_TAGS` environment variable. Skipped posts are marked as skipped in the database, so they are not picked up again on later runs, and reposts of them are skipped too. This is the main reason the fork exists: the only other crossposter with tag filtering is a long-abandoned fork that lags ~2 years behind upstream.
+
+  **Threads:** the tag only has to be added to *one* post of a thread — everything below it is dropped as well. Replies are only crossposted when their parent post is in the database, and a skipped post never gets there, so the rest of the thread is skipped too. Tagging the first post therefore suppresses the whole thread, and tagging a post in the middle cuts the thread off from that point on, while the posts above it stay crossposted.
 - **Hardened Twitter rate-limit handling** — the poster no longer crashes when Twitter omits rate-limit headers, and the database is updated only after all parts of a thread have been posted.
 - **Deployment-ready `docker-compose.yml`** — tuned for running on a Raspberry Pi (local ARM build, log rotation, host-mounted database/backup volumes).
 
